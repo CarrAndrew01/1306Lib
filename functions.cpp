@@ -794,7 +794,3 @@ void AnimationExecuter(){
             ++it;
     }
 }
-
-int main(){
-    
-}

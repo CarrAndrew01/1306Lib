@@ -28,25 +28,27 @@ set(PICO_BOARD pico2 CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(1306LIB C CXX ASM)
+project(1306Library C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(1306LIB
+add_library(1306Library STATIC
         functions.cpp
-        ssd1306_i2c.c
         )
 
 
-pico_enable_stdio_uart(1306LIB 0)
-pico_enable_stdio_usb(1306LIB 1)
+pico_enable_stdio_uart(1306Library 0)
+pico_enable_stdio_usb(1306Library 1)
 
+target_include_directories(1306Library PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
 # pull in common dependencies and additional i2c hardware support
-target_link_libraries(1306LIB 
+target_link_libraries(1306Library 
     pico_stdlib 
     hardware_i2c 
     pico_rand
@@ -54,6 +56,5 @@ target_link_libraries(1306LIB
     )
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(1306LIB)
 
 # add url via pico_set_program_url
