@@ -37,6 +37,7 @@ pico_sdk_init()
 
 add_library(1306Library STATIC
         functions.cpp
+        ssd1306_i2c.c
         )
 
 
@@ -55,6 +56,3 @@ target_link_libraries(1306Library
     hardware_pio
     )
 
-# create map/bin/hex file etc.
-
-# add url via pico_set_program_url
