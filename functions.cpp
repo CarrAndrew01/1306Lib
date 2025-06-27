@@ -754,6 +754,9 @@ Vector2 MoveSpriteCalculations(string name, Vector2 directionWithSpeed){
 
 
 void AnimationExecuter(){
+
+
+
     // loop all animations
     for (int i = 0; i < anims.size(); i++)
     {
