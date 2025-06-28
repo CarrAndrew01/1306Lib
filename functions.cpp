@@ -186,6 +186,10 @@ bool IsWithinScreen(Vector2 position, sprite_screen_structure &sprite){
     
 }
 
+ 
+
+
+
 
 /// @brief draws a sprite to the global buffer. Currently no way to have 'uneven' wrap arounds (so if you go over 56 you wrap to 12, but the reverse takes you to 118, for example)
 /// @param sprite 

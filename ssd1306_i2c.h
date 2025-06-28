@@ -13,6 +13,7 @@
 
 extern uint8_t bufferGlobal[1024];
 
+extern "C" void DrawLine(uint8_t *buf, int x0, int y0, int x1, int y1, bool on);
 extern "C" void DisplayImage(int posX, int posY, int width, int height, const uint8_t *hex); // one way
 extern "C" void InitializeScreen(); // one way
 extern "C" void DeleteScreen();
