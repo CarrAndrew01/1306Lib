@@ -41,7 +41,7 @@ add_library(1306Lib
         )
 
 
-pico_enable_stdio_uart(1306Lib 0)
+pico_enable_stdio_uart(1306Lib 1)
 pico_enable_stdio_usb(1306Lib 1)
 
 

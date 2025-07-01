@@ -1,9 +1,12 @@
+#ifndef SPRITESHPP
+#define SPRITESHPP
+
 #include <stdio.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
- using namespace std;
+using namespace std;
 
 
 
@@ -47,4 +50,8 @@ const unordered_map<string, sprite_structure> sprites = {
     {"SnakeHead", {{6, 3}, {0x00, 0x04, 0x06, 0x05, 0x06, 0x06}}},
     {"SnakeBody", {{5, 2}, {0x00, 0x02, 0x03, 0x03, 0x01}}},
     {"SnakePellet", {{3, 3}, {0x02, 0x05, 0x02}}},
-};
+    
+    {"TetrisBlock", {6, 6, {0x3f, 0x39, 0x3d, 0x3f, 0x3f, 0x3f}} },
+ };
+
+ #endif
