@@ -11,6 +11,27 @@ struct Vector2
 {
     float x = 0;
     float y = 0;
+
+
+    ///this is an unbelievably useful feature that I had no idea about, thanks chatGPT. You can just use the listed equations to add/subtract/multiply vectors, 
+    //like you can at base in unity
+    Vector2 operator-(const Vector2& other) const {
+        return {x - other.x, y - other.y};
+    }
+
+    Vector2 operator+(const Vector2& other) const {
+        return {x + other.x, y + other.y};
+    }
+
+    Vector2 operator*(float scalar) const {
+        return {x * scalar, y * scalar};
+    }
+
+    Vector2 normalized() const {
+        float length = std::sqrt(x * x + y * y);
+        if (length == 0) return {0, 0};
+        return {x / length, y / length};
+    }
 };
 
 //constant 
