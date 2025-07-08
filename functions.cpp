@@ -10,6 +10,7 @@
 #include <map>
 #include <unordered_set>
 #include "sprites.h"
+#include "functions.hpp"
 #include "pico/stdlib.h"
 #include "ssd1306_i2c.h"
 #include "pico/rand.h"
@@ -17,7 +18,6 @@
 using namespace std;
 using Callback = std::function<void()>;
  
-map<string, sprite_screen_structure> allSprites{};
 
 int lastTime = to_ms_since_boot(get_absolute_time());
 
@@ -69,7 +69,6 @@ char *ConvertString(int position, string items[], char temp[])
 
 char *ConvertString(string temp, char test[])
 {
-
     for (int i = 0; i < temp.length(); i++)
     {
         test[i] = temp[i];
@@ -328,7 +327,7 @@ void RemoveSpriteFromGlobalLoop(string name, bool wrapAround = false, Vector2 wr
 
 void DrawToGlobalMove(string name, bool wrapAround = false, Vector2 wraparoundValueUnder = {0,0}, Vector2 wraparoundValueOver = {128,64});
 
-void RemoveSpriteFromGlobal(string name, bool wrapAround = false, Vector2 wraparoundValueUnder = {0,0}, Vector2 wraparoundValueOver = {128,64}){
+void RemoveSpriteFromGlobal(string name, bool wrapAround, Vector2 wraparoundValueUnder, Vector2 wraparoundValueOver){
     RemoveSpriteFromGlobalLoop(name, wrapAround, wraparoundValueUnder, wraparoundValueOver);
 }
 
@@ -379,7 +378,7 @@ void DisplayTextMultipleLines(int x, int y, const char **text, int size, int gap
 /// @param posY 
 /// @param stringToConvert 
 /// @param nameOfSprite 
-void CreateNewTextSprite(int posX, int posY, string stringToConvert, string nameOfSprite, bool invert = false)
+void CreateNewTextSprite(int posX, int posY, string stringToConvert, string nameOfSprite, bool invert)
 {
     sprite_screen_structure text{
         {posX,
@@ -800,4 +799,9 @@ void AnimationExecuter(){
         else
             ++it;
     }
+}
+
+void Update(){
+    lastTime = to_ms_since_boot(get_absolute_time());
+    UpdateFromGlobal();
 }
