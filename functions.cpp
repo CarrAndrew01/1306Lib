@@ -18,6 +18,8 @@
 using namespace std;
 using Callback = std::function<void()>;
  
+map<string, sprite_screen_structure> allSprites{};
+
 
 int lastTime = to_ms_since_boot(get_absolute_time());
 
@@ -82,6 +84,16 @@ void DeleteEverything(){
     allSprites.clear();
 
     DeleteScreen();
+}
+
+/// @brief blacks out an area without removing any sprites
+void RemoveArea(int xPixelStart, int xPixelEnd, int yPixelStart, int yPixelEnd){
+
+    for(int i = xPixelStart; i < xPixelEnd; i++){
+        for(int j = yPixelStart; j < yPixelEnd; j++){ 
+            SetPixel(bufferGlobal, i, j, false); 
+        } 
+    } 
 }
 
 /// @brief returns true if a position within the global hex is
@@ -278,7 +290,7 @@ void DrawToGlobalBackend(sprite_screen_structure& sprite, int drawOrErase, bool 
 
 }
 
-void DrawToGlobal(sprite_screen_structure& sprite, int drawOrErase = 1, bool wrapAround = true, Vector2 wraparoundValueUnder = {-1,-1}, Vector2 wraparoundValueOver = {128,64}){
+void DrawToGlobal(sprite_screen_structure& sprite, int drawOrErase, bool wrapAround, Vector2 wraparoundValueUnder, Vector2 wraparoundValueOver){
     DrawToGlobalBackend(sprite, drawOrErase, wrapAround, wraparoundValueUnder, wraparoundValueOver);
 }
 
@@ -303,8 +315,11 @@ void FindAllOverlap(sprite_screen_structure& sprite, unordered_set<sprite_screen
 /// @brief figure out if the sprite being sent is hitting anything else, nuke anything being touched, and redraw them
 void RemoveSpriteFromGlobalLoop(string name, bool wrapAround = false, Vector2 wraparoundValueUnder = {0,0}, Vector2 wraparoundValueOver = {128,64})
 {
-    if (!allSprites.count(name)) return;
- 
+    if (!allSprites.count(name)){ 
+         printf("erased\n"); 
+         return;
+        }
+
     unordered_set<sprite_screen_structure*> overlaps = {&allSprites.at(name)};
 
     // //we know we've got the sprite somewhere in there
@@ -325,13 +340,12 @@ void RemoveSpriteFromGlobalLoop(string name, bool wrapAround = false, Vector2 wr
     }
 }
 
-void DrawToGlobalMove(string name, bool wrapAround = false, Vector2 wraparoundValueUnder = {0,0}, Vector2 wraparoundValueOver = {128,64});
-
+ 
 void RemoveSpriteFromGlobal(string name, bool wrapAround, Vector2 wraparoundValueUnder, Vector2 wraparoundValueOver){
     RemoveSpriteFromGlobalLoop(name, wrapAround, wraparoundValueUnder, wraparoundValueOver);
 }
 
-void RedrawSprite(string name){
+void RefreshSprite(string name){
     RemoveSpriteFromGlobal(name);
     DrawToGlobalMove(name);
 }
@@ -403,6 +417,16 @@ int ConvertCenterToSide(int position, int size){
     return position - size / 2; 
 }
 
+///takes a standard 
+int ConvertTopToBottom(int position, int size){
+    return position + size; 
+}
+
+///takes a standard 
+int ConvertCenterToTop(int position, int size){
+    return position - size / 2; 
+}
+
 int ConvertCenterToLeftSideText(int position, string str){
     return position - (str.length() * 8) / 2;
 }
@@ -410,6 +434,8 @@ int ConvertCenterToLeftSideText(int position, string str){
 int ConvertCenterToRightSideText(int position, string str){
     return position - (str.length() * 8);
 }
+
+
 
 /// @brief Takes a text sprite and edits it with new text
 void ChangeTextSprite(string name, string text){
@@ -499,6 +525,80 @@ AnimationManager SingleAnimation(int posX, int posY, int destX, int destY, int t
 
 
 
+/// @brief Flips a sprite by 180 degrees
+//I cant work out how to make this dynamic so right now it always goes by 90 degrees its using an if/else statement
+/// @param spr 
+void FlipSpriteOnX(sprite_screen_structure* spr, string str){
+
+    RemoveSpriteFromGlobal(str);
+
+    sprite_screen_structure temp; 
+
+    //get the bits of the sprite at 0 rotation and save it into a giant grid 
+ 
+    //its easiest to assign everyhing to temp then copy it over
+    temp.size.x = spr->size.y; 
+    temp.size.y = spr->size.x;
+
+    temp.pos.x = spr->pos.x;
+    temp.pos.y = spr->pos.y;
+
+
+    int hexBitPosition = 0; //the bit position of the hex that we're 'moving'
+    int targetBitPosition = 0;//the bit position of the hex that we're editing
+ 
+
+    for(int y = 0; y < spr->size.y; y++){
+
+        if(hexBitPosition > 7){
+            hexBitPosition = 0;
+        }
+        targetBitPosition = 0;
+
+
+        for(int x = 0; x < spr->size.x; x++){
+            //we need to count down the bits, right to left and put them top to bottom on the right f
+
+            if(targetBitPosition > 7){
+                targetBitPosition = 0;
+            }
+
+            int currentHexPosition = ((int)(y / 8) * spr->size.x) + x;//the hex in the sprite we're rotating
+            int targetHexPosition = (temp.size.x - 1) + ((x / 8) * temp.size.x) - y; //the hex that we're editing
+
+            bool bitValue = (spr->img[currentHexPosition] >> hexBitPosition) & 1; //and the bit in the SPRITES hex we are putting in
+
+            if(bitValue){
+                temp.img[targetHexPosition] |= 1  << targetBitPosition;
+            }
+
+
+            targetBitPosition++;
+        }   
+       // sleep_ms(5000);
+        
+        hexBitPosition++;
+
+    }
+
+     spr->size.x = temp.size.x;
+     spr->size.y = temp.size.y;
+
+
+    for(int i = 0 ; i < 1023; i++){
+        spr->img[i] = 0x00;
+        spr->img[i] = temp.img[i];
+    }
+ 
+ 
+    DrawToGlobal(*spr);
+
+    UpdateFromGlobal();
+ }
+
+
+
+
 /// @brief takes a sprite and returns a hex array thats a rotated version, always a 90 degree. 
 //I cant work out how to make this dynamic so right now it always goes by 90 degrees its using an if/else statement
 /// @param spr 
@@ -571,6 +671,10 @@ void RotateSpriteClockwiseby90(sprite_screen_structure* spr, float rotation, str
  }
 
 
+
+ 
+
+
 /// @brief creates the sprite_structure_??? and adds it to the list, then calls RenderGoBetween
 void CreateNewSprite(int x, int y, sprite_structure spriteStructure, string name)
 {
@@ -617,7 +721,7 @@ Vector2 FullPixelMove(sprite_screen_structure &sp, Vector2 movement, int extraSt
 
     //easy way of 'rounding up' a float instead of the default round down
     //this is optional but it prevents us redrawing the sprite every single cycle if we haven't moved a full pixel yet
-    if(sp.pos.y + movement.y < (int)sp.pos.y){
+    if(sp.pos.y + movement.y < floor(sp.pos.y)){
         move.y = -1;
     }else if(sp.pos.y + movement.y > ceil(sp.pos.y)){
         move.y = 1;
@@ -625,7 +729,7 @@ Vector2 FullPixelMove(sprite_screen_structure &sp, Vector2 movement, int extraSt
 
     if(sp.pos.x + movement.x > ceil(sp.pos.x)){
         move.x = 1;   
-    }else if(sp.pos.x + movement.x < (int)sp.pos.x){
+    }else if(sp.pos.x + movement.x < floor(sp.pos.x)){
         move.x = -1;
     }
 
@@ -634,13 +738,14 @@ Vector2 FullPixelMove(sprite_screen_structure &sp, Vector2 movement, int extraSt
 }
 
 
-Vector2 MoveSprite(string name, Vector2 movement, bool wrapAround = true, Vector2 wraparoundValueUnder = { 1,1}, Vector2 wraparoundValueOver = {128,64}){
+Vector2 MoveSprite(string name, Vector2 movement, bool wrapAround, Vector2 wraparoundValueUnder, Vector2 wraparoundValueOver){
     sprite_screen_structure *sp = &allSprites.at(name);
 
     Vector2 pixel = FullPixelMove(*sp, movement);
 
     RemoveSpriteFromGlobal(name, wrapAround, wraparoundValueUnder, wraparoundValueOver);
- 
+                  
+
 
     sp->pos.x += movement.x;
     sp->pos.y += movement.y;
@@ -658,7 +763,7 @@ Vector2 MoveSprite(string name, Vector2 movement, bool wrapAround = true, Vector
 
     return pixel; //return the firection if either is used. We don't use this much.
 }
-
+ 
 
 void MoveToPosition(string name, Vector2 newPosition){
     sprite_screen_structure *sp = &allSprites.at(name);
@@ -724,15 +829,11 @@ Vector2 MoveSpriteCalculations(string name, float direction, float speed){
     return movement;
 }
 
-
-
 Vector2 MoveSpriteCalculations(string name, Vector2 direction, float speed){
 
     int time = to_ms_since_boot(get_absolute_time()) - lastTime;//the amount of time thats passed
     float percent = (float)time / 1000; //percentage of a second thats passed
-
-    //
-
+ 
     Vector2 movement = {
         direction.x * speed * percent,
         direction.y * speed * percent
@@ -740,13 +841,10 @@ Vector2 MoveSpriteCalculations(string name, Vector2 direction, float speed){
     return movement;
 }
 
-
 Vector2 MoveSpriteCalculations(string name, Vector2 directionWithSpeed){
 
     int time = to_ms_since_boot(get_absolute_time()) - lastTime;//the amount of time thats passed
     float percent = (float)time / 1000; //percentage of a second thats passed
-
-    //
 
     Vector2 movement = {
         directionWithSpeed.x * percent,

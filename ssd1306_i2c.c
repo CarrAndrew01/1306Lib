@@ -274,6 +274,7 @@
  }
 
  void UpdateFromGlobal(){
+ 
     struct render_area frame_area = {
         start_col: 0,
         end_col : SSD1306_WIDTH - 1,
@@ -289,7 +290,7 @@
 
  }
  
- static void SetPixel(uint8_t *buf, int x,int y, bool on) {
+ void SetPixel(uint8_t *buf, int x,int y, bool on) {
      assert(x >= 0 && x < SSD1306_WIDTH && y >=0 && y < SSD1306_HEIGHT);
  
      // The calculation to determine the correct bit to set depends on which address

@@ -1,3 +1,6 @@
+#ifndef SSD1306H
+#define SSD1306H
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,3 +26,6 @@ extern "C" void calc_render_area_buflen(struct render_area *area);
 extern "C" void WriteString(uint8_t *buf,  int16_t x, int16_t y, const char *str,  bool invert);
 extern "C" int GetLongestString(const char **text, int length);
 extern "C" void WriteStringBlock(uint8_t *buf,  int16_t x, int16_t y, const char *str, int longest, int* counter, bool invert);
+extern "C" void SetPixel(uint8_t *buf, int x,int y, bool on);
+
+#endif
