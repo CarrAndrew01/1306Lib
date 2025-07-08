@@ -302,6 +302,8 @@
  
      // This code could be optimised, but is like this for clarity. The compiler
      // should do a half decent job optimising it anyway.
+
+     if(x < 0 || x > 128 || y < 0 || y > 63) return;
  
      const int BytesPerRow = SSD1306_WIDTH ; // x pixels, 1bpp, but each row is 8 pixel high, so (x / 8) * 8
  
@@ -318,7 +320,7 @@
 
 
  // Basic Bresenhams.
- static void DrawLine(uint8_t *buf, int x0, int y0, int x1, int y1, bool on) {
+void DrawLine(uint8_t *buf, int x0, int y0, int x1, int y1, bool on) {
  
      int dx =  abs(x1-x0);
      int sx = x0<x1 ? 1 : -1;
@@ -343,6 +345,7 @@
          }
      }
  }
+
  
  //if we keep adding letters, might want to refactor this
 
@@ -384,39 +387,6 @@
  }
  
 
-
-//for now, we'll just pass in an int that represents what we should be multiplying y by (64 for half the screen etc.)
-
-//  static void WriteChar(uint8_t *buf,  int16_t x, int16_t y, uint8_t ch, int number, bool invert, int *counter) {
-//      if (x > SSD1306_WIDTH - 8 || y > SSD1306_HEIGHT - 8)
-//          return;
-
-//      // For the moment, only write on Y row boundaries (every 8 vertical pixels)
-//      y = y/8;
- 
-//      ch = toupper(ch);
-//      int idx = GetFontIndex(ch);
-//      int fb_idx = y * number + x;
- 
-
-//      for (int i=0;i<8;i++) {
-
-//         uint8_t letter = font[idx * 8 + i];
-
-//         if(invert){
-//             letter = 255 - letter;
-//         }
-        
-
-//         buf[*counter] = letter;
-
-//         bufferGlobal[fb_idx++] |= letter;
-
-//         *counter = *counter + 1;
-
-//     }
-//  }
- 
 
 static void WriteCharReworked(uint8_t *buf,  int16_t x, int16_t y, uint8_t ch, int* counter, bool invert) {
      if (x > SSD1306_WIDTH - 8 || y > SSD1306_HEIGHT - 8)

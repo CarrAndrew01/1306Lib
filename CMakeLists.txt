@@ -52,6 +52,8 @@ target_link_libraries(
     hardware_i2c 
     pico_rand
     hardware_pio
+    hardware_adc
+
     )
 
 # create map/bin/hex file etc.
